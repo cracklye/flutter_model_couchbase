@@ -28,9 +28,9 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   @override
   Future<T> create(Map<String, dynamic> values) async {
     //Add the defaults...
-    loggy.debug("CouchbaseDAO.create $values");
+    loggy.debug("CouchbaseDAO.create(${T.toString()}) $values");
 
-    values.putIfAbsent("type", () => T.toString());
+    values.putIfAbsent("_dbtype", () => T.toString());
     values.update("createdDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
     values.update("modifiedDate", (value) => DateTime.now().toString(),
@@ -60,9 +60,13 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     values.update("modifiedDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
 
-    final document = (await database.document(id))!;
+    Document document = (await database.document(id))!;
     final MutableDocument mutableDocument = document.toMutable();
-    mutableDocument.setData(values);
+    //mutableDocument.setData(values);
+
+    for (var key in values.keys) {
+      mutableDocument.setValue(values[key], key: key);
+    }
 
     await database.saveDocument(mutableDocument);
   }
@@ -85,7 +89,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   String buildSQL(String? parentId, String? searchText,
       List<SortOrderBy>? orderBy, List<Filter>? filters) {
     StringBuffer sb = StringBuffer();
-    sb.write('select * from _ where type=\'');
+    sb.write('select * from _ where _dbtype=\'');
     sb.write(T.toString());
     sb.write('\'');
     if (parentId != null) {
@@ -147,7 +151,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         }
       }
     }
-    loggy.debug("CouchbaseDAO.buildSQL() returning ${ sb.toString()}");
+    loggy.debug("CouchbaseDAO.buildSQL() returning ${sb.toString()}");
     return sb.toString();
   }
 
@@ -170,7 +174,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
 
     if (searchText != null && searchText != "") {
       //Filter based on the text as we're not handling it elsewhere....
-       loggy.debug("CouchbaseDAO.list() filtering on search text $searchText");
+      loggy.debug("CouchbaseDAO.list() filtering on search text $searchText");
 
       return c.map((event) =>
           event.where((element) => element.filter(searchText)).toList());
@@ -199,7 +203,6 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     }
     return rtn;
   }
-  
 
   @override
   Future<Stream<T?>> listById(
