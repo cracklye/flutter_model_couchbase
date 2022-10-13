@@ -1,0 +1,33 @@
+name: flutter_model_couchbase
+description: A new Flutter package project.
+version: 0.0.1
+
+
+environment:
+  sdk: '>=2.18.2 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_model:
+    path: ../flutter_model
+  cbl: ^2.1.1
+  cbl_flutter: ^2.0.2
+  cbl_flutter_ce: ^2.1.2
+
+  loggy: ^2.0.1+1  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  cbl_dart:
+  flutter_lints: ^2.0.0
+  freezed_annotation: 
+  freezed:
+  build_runner: 
+  json_serializable:
+  json_annotation: 
+  test:
+
+# The following section is specific to Flutter packages.
+flutter:
