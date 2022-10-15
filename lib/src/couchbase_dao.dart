@@ -30,7 +30,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     //Add the defaults...
     loggy.debug("CouchbaseDAO.create(${T.toString()}) $values");
 
-    values.putIfAbsent("_dbtype", () => T.toString());
+    values.putIfAbsent("dbtype", () => T.toString());
     values.update("createdDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
     values.update("modifiedDate", (value) => DateTime.now().toString(),
@@ -55,7 +55,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
 
   @override
   Future<dynamic> update(dynamic id, Map<String, dynamic> values) async {
-    loggy.debug("CouchbaseDAO.create $values");
+    loggy.debug("CouchbaseDAO.create values");
     // Read the document.
     values.update("modifiedDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
@@ -89,7 +89,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   String buildSQL(String? parentId, String? searchText,
       List<SortOrderBy>? orderBy, List<Filter>? filters) {
     StringBuffer sb = StringBuffer();
-    sb.write('select * from _ where _dbtype=\'');
+    sb.write('select * from _ where dbtype=\'');
     sb.write(T.toString());
     sb.write('\'');
     if (parentId != null) {
