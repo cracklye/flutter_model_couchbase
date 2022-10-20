@@ -45,7 +45,7 @@ class CouchbaseGlobalDAO with UiLoggy {
                 "CouchbaseDAO.buildSQL() Fielname is not empty ${filter.comparison}");
             if (filter.comparison == FilterComparison.isin) {
               sb.write(
-                  "and ( ANY ${String.fromCharCode(i)} IN ${filter.fieldName} SATISFIES ${String.fromCharCode(i)} == ");
+                  " and ( ANY ${String.fromCharCode(i)} IN ${filter.fieldName} SATISFIES ${String.fromCharCode(i)} == ");
               //sb.write(" ( ANY ${filter.key} IN ${filter.fieldName} SATISFIES ${filter.key} == ");
               if (filter.isString) {
                 sb.write("'${filter.value}'");

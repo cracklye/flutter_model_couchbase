@@ -19,9 +19,9 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
 
     Document? doc = await database.document(id);
     MutableDocument mdco = doc!.toMutable();
-    Blob blob = Blob.fromData("image/jpeg", await src.readAsBytes());
+    Blob blob = Blob.fromData(mimeType ?? "unknown", await src.readAsBytes());
     mdco.setBlob(blob, key: "${fieldName}blob");
-    mdco.setValue({"hasvalue": true}, key: fieldName);
+    mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
     database.saveDocument(mdco);
 
     // String uid =const Uuid().v4();
@@ -82,9 +82,9 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
       Uint8List data, String? ext, dynamic id, String? mimeType) async {
     Document? doc = await database.document(id);
     MutableDocument mdco = doc!.toMutable();
-    Blob blob = Blob.fromData("image/jpeg", data);
+    Blob blob = Blob.fromData(mimeType??"unknown", data);
     mdco.setBlob(blob, key: "${fieldName}blob");
-    mdco.setValue({"hasvalue": true}, key: fieldName);
+    mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
 
     database.saveDocument(mdco);
   }
