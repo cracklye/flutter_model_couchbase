@@ -19,6 +19,9 @@ class ModelStub extends IModel {
   @override
   get id => values["id"];
 
+
+  get dbtype => values["dbtype"];
+
   @override
   DateTime? get modifiedDate => values["modifiedDate"];
 

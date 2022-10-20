@@ -10,7 +10,9 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     with UiLoggy {
   final Database database;
 
-  CouchbaseDAO(this.database);
+  final List<IModelAPI>? childDaos;
+
+  CouchbaseDAO(this.database, {this.childDaos});
 
   @override
   Future<dynamic> init([dynamic props]) async {
@@ -61,6 +63,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         ifAbsent: (() => DateTime.now().toString()));
 
     Document document = (await database.document(id))!;
+
     final MutableDocument mutableDocument = document.toMutable();
     //mutableDocument.setData(values);
 
@@ -78,13 +81,40 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   }
 
   @override
+  Future<dynamic> deleteByParentId(dynamic parentId) async {
+    loggy.debug("CouchbaseDAO.deleteByParentId $parentId");
+    loggy.error(
+        "Not implemented correctly - need to delete any child entries..");
+
+    final query = await Query.fromN1ql(
+        database, "select id from _ where parentid='$parentId'");
+
+    var rs = await query.execute();
+    var ar = await rs.allResults();
+    for (var r in ar) {
+      var val = r["id"];
+      deleteModelById(val.string);
+    }
+  }
+
+  @override
   Future<dynamic> deleteModel(T model) async {
-    loggy.debug("CouchbaseDAO.delete ${model.id}");
-    var doc = await database.document(model.id);
+    return deleteModelById(model.id);
+  }
+  Future<dynamic> deleteModelById(dynamic id) async {
+    loggy.debug("CouchbaseDAO.delete ${id}");
+    var doc = await database.document(id);
     if (doc != null) {
+      if (childDaos != null && childDaos!.isNotEmpty) {
+        for (var dao in childDaos!) {
+          await dao.deleteByParentId(id);
+        }
+      }
       database.deleteDocument(doc);
     }
   }
+// select * from _ where dbtype!='' and ( ANY x IN tags SATISFIES x == 'No Colour' END ) and ( ANY x IN tags SATISFIES x == 'Green' END )
+// select * from _default where dbtype!='' and ( ANY x IN tags SATISFIES x == 'xxx' END) or ( ANY x IN tags SATISFIES x == 'test' END)
 
   String buildSQL(String? parentId, String? searchText,
       List<SortOrderBy>? orderBy, List<Filter>? filters) {
@@ -95,31 +125,50 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     if (parentId != null) {
       sb.write(" and parentId='$parentId'");
     }
-
+    loggy.debug("CouchbaseDAO.buildSQL() Started");
     // handle all the filters......
     if (filters != null && filters.isNotEmpty) {
       for (var filter in filters) {
         if (filter is FilterField<T>) {
+          loggy.debug("CouchbaseDAO.buildSQL() Is Filter field");
           if (filter.fieldName != "") {
-            sb.write("and ${filter.fieldName} ");
-            if (filter.comparison == FilterComparison.equals) {
-              sb.write("=");
-            } else if (filter.comparison == FilterComparison.notequals) {
-              sb.write("!=");
-            }
-            if (filter.comparison == FilterComparison.greaterthan) {
-              sb.write(">");
-            }
-            if (filter.comparison == FilterComparison.lessthan) {
-              sb.write("<");
-            }
-            if (filter.comparison == FilterComparison.like) {
-              sb.write(" LIKE ");
-            }
-            if (filter.isString) {
-              sb.write("'%${filter.value}%'");
+            loggy.debug(
+                "CouchbaseDAO.buildSQL() Fielname is not empty ${filter.comparison}");
+            if (filter.comparison == FilterComparison.isin) {
+              sb.write(
+                  " ANY ${filter.key} IN ${filter.fieldName} SATISFIES ${filter.key} == ");
+              if (filter.isString) {
+                sb.write("'${filter.value}'");
+              } else {
+                sb.write("${filter.value}");
+              }
+              sb.write(" END ");
             } else {
-              sb.write("${filter.value}");
+              sb.write("and ${filter.fieldName} ");
+              if (filter.comparison == FilterComparison.equals) {
+                sb.write("=");
+              } else if (filter.comparison == FilterComparison.notequals) {
+                sb.write("!=");
+              }
+              if (filter.comparison == FilterComparison.greaterthan) {
+                sb.write(">");
+              }
+              if (filter.comparison == FilterComparison.lessthan) {
+                sb.write("<");
+              }
+              if (filter.comparison == FilterComparison.like) {
+                sb.write(" LIKE ");
+              }
+
+              if (filter.isString) {
+                if (filter.comparison == FilterComparison.like) {
+                  sb.write("'%${filter.value}%'");
+                } else {
+                  sb.write("'${filter.value}'");
+                }
+              } else {
+                sb.write("${filter.value}");
+              }
             }
           }
         } else {
@@ -210,8 +259,17 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   ) async {
     loggy.debug("CouchbaseDAO.listById($id)");
     final document = database.documentChanges(id);
+    Document? doc = await database.document(id);
 
-    return document.asyncMap((event) => getById(event.documentId));
+    StreamController<T?> controller = StreamController<T?>();
+    Stream<T?> s = controller.stream;
+    controller.add(createFromMap(doc!.toPlainMap()));
+    var stream =
+        document.asyncMap((event) => getById(event.documentId)).listen((event) {
+      controller.add(event);
+    });
+
+    return Future.value(s);
   }
 
   @override

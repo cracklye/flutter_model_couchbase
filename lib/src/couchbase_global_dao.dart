@@ -34,43 +34,57 @@ class CouchbaseGlobalDAO with UiLoggy {
 
       sb.write(" parentId='$parentId'");
     }
-
-    // handle all the filters......
+// handle all the filters......
     if (filters != null && filters.isNotEmpty) {
+      int i = 97;
       for (var filter in filters) {
         if (filter is FilterField) {
+          loggy.debug("CouchbaseDAO.buildSQL() Is Filter field");
           if (filter.fieldName != "") {
-            if (!hasWhere) {
-              sb.write(" where ");
-              hasWhere = true;
+            loggy.debug(
+                "CouchbaseDAO.buildSQL() Fielname is not empty ${filter.comparison}");
+            if (filter.comparison == FilterComparison.isin) {
+              sb.write(
+                  "and ( ANY ${String.fromCharCode(i)} IN ${filter.fieldName} SATISFIES ${String.fromCharCode(i)} == ");
+              //sb.write(" ( ANY ${filter.key} IN ${filter.fieldName} SATISFIES ${filter.key} == ");
+              if (filter.isString) {
+                sb.write("'${filter.value}'");
+              } else {
+                sb.write("${filter.value}");
+              }
+              sb.write(" END ) ");
             } else {
-              sb.write(" and ");
-            }
+              sb.write("and ${filter.fieldName} ");
+              if (filter.comparison == FilterComparison.equals) {
+                sb.write("=");
+              } else if (filter.comparison == FilterComparison.notequals) {
+                sb.write("!=");
+              }
+              if (filter.comparison == FilterComparison.greaterthan) {
+                sb.write(">");
+              }
+              if (filter.comparison == FilterComparison.lessthan) {
+                sb.write("<");
+              }
+              if (filter.comparison == FilterComparison.like) {
+                sb.write(" LIKE ");
+              }
 
-            sb.write(" ${filter.fieldName} ");
-            if (filter.comparison == FilterComparison.equals) {
-              sb.write("=");
-            } else if (filter.comparison == FilterComparison.notequals) {
-              sb.write("!=");
-            }
-            if (filter.comparison == FilterComparison.greaterthan) {
-              sb.write(">");
-            }
-            if (filter.comparison == FilterComparison.lessthan) {
-              sb.write("<");
-            }
-            if (filter.comparison == FilterComparison.like) {
-              sb.write(" LIKE ");
-            }
-            if (filter.isString) {
-              sb.write("'${filter.value}'");
-            } else {
-              sb.write("${filter.value}");
+              if (filter.isString) {
+                if (filter.comparison == FilterComparison.like) {
+                  sb.write("'%${filter.value}%'");
+                } else {
+                  sb.write("'${filter.value}'");
+                }
+              } else {
+                sb.write("${filter.value}");
+              }
             }
           }
         } else {
           loggy.warning("An unknown filter type has been provided $filter");
         }
+        i++;
       }
     }
 
@@ -115,12 +129,12 @@ class CouchbaseGlobalDAO with UiLoggy {
 
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
-    var c = b.map((event) => event
-        .map((e) {
+    var c = b.map((event) => event.map((e) {
           print(e);
-          return  ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);} )
-        .toList());
-
+          if (e.toPlainMap()['_'] == null) return ModelStub(e.toPlainMap());
+          print('Not nulls');
+          return ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);
+        }).toList()); //as Stream<List<ModelStub>>;
 
     if (searchText != null && searchText != "") {
       //Filter based on the text as we're not handling it elsewhere....
@@ -150,7 +164,7 @@ class CouchbaseGlobalDAO with UiLoggy {
         .toList();
     if (searchText != null && searchText != "") {
       //Filter based on the text as we're not handling it elsewhere....
-        return rtn.where((element) => element.filter(searchText)).toList();
+      return rtn.where((element) => element.filter(searchText)).toList();
     }
     return rtn;
   }
