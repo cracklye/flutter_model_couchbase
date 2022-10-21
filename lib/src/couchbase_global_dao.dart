@@ -87,6 +87,9 @@ class CouchbaseGlobalDAO with UiLoggy {
         i++;
       }
     }
+ if(searchText!=null && searchText!=""){
+      sb.write(" and match(fti,'$searchText')");
+    }
 
     if (orderBy != null && orderBy.isNotEmpty) {
       sb.write(" order by ");
@@ -136,13 +139,13 @@ class CouchbaseGlobalDAO with UiLoggy {
           return ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);
         }).toList()); //as Stream<List<ModelStub>>;
 
-    if (searchText != null && searchText != "") {
-      //Filter based on the text as we're not handling it elsewhere....
-      loggy.debug("CouchbaseDAO.list() filtering on search text $searchText");
+    // if (searchText != null && searchText != "") {
+    //   //Filter based on the text as we're not handling it elsewhere....
+    //   loggy.debug("CouchbaseDAO.list() filtering on search text $searchText");
 
-      return c.map((event) =>
-          event.where((element) => element.filter(searchText)).toList());
-    }
+    //   return c.map((event) =>
+    //       event.where((element) => element.filter(searchText)).toList());
+    // }
     return c;
   }
 
@@ -162,10 +165,10 @@ class CouchbaseGlobalDAO with UiLoggy {
     var rtn = results
         .map((e) => ModelStub(e.toPlainMap()["_"] as Map<String, Object?>))
         .toList();
-    if (searchText != null && searchText != "") {
-      //Filter based on the text as we're not handling it elsewhere....
-      return rtn.where((element) => element.filter(searchText)).toList();
-    }
+    // if (searchText != null && searchText != "") {
+    //   //Filter based on the text as we're not handling it elsewhere....
+    //   return rtn.where((element) => element.filter(searchText)).toList();
+    // }
     return rtn;
   }
 }
