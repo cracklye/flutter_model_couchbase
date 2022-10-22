@@ -3,14 +3,9 @@
 import 'dart:io';
 
 import 'package:cbl/cbl.dart';
-import 'package:cbl_flutter/cbl_flutter.dart';
 import 'package:flutter_model/flutter_model.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:flutter_model_couchbase/flutter_model_couchbase.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter_model/flutter_model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cbl_dart/cbl_dart.dart';
 import 'dart:async';

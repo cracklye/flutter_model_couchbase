@@ -101,8 +101,9 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   Future<dynamic> deleteModel(T model) async {
     return deleteModelById(model.id);
   }
+
   Future<dynamic> deleteModelById(dynamic id) async {
-    loggy.debug("CouchbaseDAO.delete ${id}");
+    loggy.debug("CouchbaseDAO.delete $id");
     var doc = await database.document(id);
     if (doc != null) {
       if (childDaos != null && childDaos!.isNotEmpty) {
@@ -176,7 +177,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         }
       }
     }
-    if(searchText!=null && searchText!=""){
+    if (searchText != null && searchText != "") {
       sb.write(" and match(fti,'$searchText')");
     }
     if (orderBy != null && orderBy.isNotEmpty) {

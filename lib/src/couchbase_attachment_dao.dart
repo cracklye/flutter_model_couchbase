@@ -8,11 +8,12 @@ import 'package:flutter_model/flutter_model.dart';
 class CouchbaseAttachmentDAO extends AttachmentDAO {
   final Database database;
   CouchbaseAttachmentDAO(this.database);
-
+  @override
   Future init([String? rootPath]) async {
     AttachmentDAO.active = this;
   }
 
+  @override
   Future<void> savePathPost(
       String fieldName, String srcPath, dynamic id, String? mimeType) async {
     var src = File(srcPath);
@@ -38,6 +39,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     // });
   }
 
+  @override
   Future<Map<String, dynamic>?> savePath(
       String fieldName, String srcPath, String? mimeType) async {
     return {};
@@ -55,6 +57,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     // });
   }
 
+  @override
   Future<ImageProvider> getImageProvider(IModel coverImage,
       Map<String, dynamic>? details, String fieldName) async {
     Document? doc = await database.document(coverImage.id);
@@ -65,6 +68,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     return f;
   }
 
+  @override
   Future<Map<String, dynamic>?> removeContentPost(
       String fieldName, dynamic id) async {
     //Delete it and return null;
@@ -78,17 +82,19 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     return null;
   }
 
+  @override
   Future<Map<String, dynamic>?> saveContentPost(String fieldName,
       Uint8List data, String? ext, dynamic id, String? mimeType) async {
     Document? doc = await database.document(id);
     MutableDocument mdco = doc!.toMutable();
-    Blob blob = Blob.fromData(mimeType??"unknown", data);
+    Blob blob = Blob.fromData(mimeType ?? "unknown", data);
     mdco.setBlob(blob, key: "${fieldName}blob");
     mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
 
     database.saveDocument(mdco);
   }
 
+  @override
   Future<Map<String, dynamic>?> saveContent(
       String fieldName, Uint8List data, String? ext, String? mimeType) async {
     return {};
