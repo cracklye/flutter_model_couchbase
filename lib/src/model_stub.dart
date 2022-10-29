@@ -1,7 +1,12 @@
 import 'package:flutter_model/flutter_model.dart';
 
+/// ModelStub provudes basic information about a mix of 
+/// multiple different types of models.
 class ModelStub extends IModel {
+
+  /// the content of the model 
   final Map<String, dynamic> values;
+  
   ModelStub(this.values);
 
   @override

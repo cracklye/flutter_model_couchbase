@@ -5,9 +5,11 @@ import 'package:cbl/cbl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_model/flutter_model.dart';
 
+///
 class CouchbaseAttachmentDAO extends AttachmentDAO {
   final Database database;
   CouchbaseAttachmentDAO(this.database);
+
   @override
   Future init([String? rootPath]) async {
     AttachmentDAO.active = this;
@@ -24,37 +26,12 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     mdco.setBlob(blob, key: "${fieldName}blob");
     mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
     database.saveDocument(mdco);
-
-    // String uid =const Uuid().v4();
-    // var ext = extension(srcPath);
-    // String relativeURI = '$subdir\\$uid$ext';
-    // String fullUri = '$_rootPath\\$relativeURI';
-
-    // var src = File(srcPath);
-    // await src.copy(fullUri);
-
-    // return Future.value({
-    //   "${fieldName}Uri": relativeURI,
-    //   "${fieldName}ThumbnailUri": "/thumbnail/jpg"
-    // });
   }
 
   @override
   Future<Map<String, dynamic>?> savePath(
       String fieldName, String srcPath, String? mimeType) async {
     return {};
-    // String uid =const Uuid().v4();
-    // var ext = extension(srcPath);
-    // String relativeURI = '$subdir\\$uid$ext';
-    // String fullUri = '$_rootPath\\$relativeURI';
-
-    // var src = File(srcPath);
-    // await src.copy(fullUri);
-
-    // return Future.value({
-    //   "${fieldName}Uri": relativeURI,
-    //   "${fieldName}ThumbnailUri": "/thumbnail/jpg"
-    // });
   }
 
   @override
@@ -92,24 +69,12 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
     mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
 
     database.saveDocument(mdco);
+    
   }
 
   @override
   Future<Map<String, dynamic>?> saveContent(
       String fieldName, Uint8List data, String? ext, String? mimeType) async {
     return {};
-    // String uid = const Uuid().v4();
-
-    // String relativeURI = '$subdir\\$uid$ext';
-    // String fullUri = '$_rootPath\\$relativeURI';
-
-    // var newf = File(fullUri);
-    // //var sink =
-    // await newf.writeAsBytes(data);
-
-    // return Future.value({
-    //   "${fieldName}Uri": relativeURI,
-    //   "${fieldName}ThumbnailUri": "/thumbnail/jpg"
-    // });
   }
 }
