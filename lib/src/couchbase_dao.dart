@@ -93,16 +93,17 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     var ar = await rs.allResults();
     for (var r in ar) {
       var val = r["id"];
-      deleteModelById(val.string);
+      deleteById(val.string);
     }
   }
 
   @override
   Future<dynamic> deleteModel(T model) async {
-    return deleteModelById(model.id);
+    return deleteById(model.id);
   }
 
-  Future<dynamic> deleteModelById(dynamic id) async {
+  @override
+  Future<dynamic> deleteById(dynamic id) async {
     loggy.debug("CouchbaseDAO.delete $id");
     var doc = await database.document(id);
     if (doc != null) {
@@ -114,6 +115,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
       database.deleteDocument(doc);
     }
   }
+  
 // select * from _ where dbtype!='' and ( ANY x IN tags SATISFIES x == 'No Colour' END ) and ( ANY x IN tags SATISFIES x == 'Green' END )
 // select * from _default where dbtype!='' and ( ANY x IN tags SATISFIES x == 'xxx' END) or ( ANY x IN tags SATISFIES x == 'test' END)
 

@@ -15,8 +15,9 @@ dependencies:
   cbl: ^2.1.1
   cbl_flutter: ^2.0.2
   cbl_flutter_ce: ^2.1.2
-
   loggy: ^2.0.1+1  
+
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
