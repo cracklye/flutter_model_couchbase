@@ -1,4 +1,6 @@
-class TypeGenerator {
+import 'package:loggy/loggy.dart';
+
+class TypeGenerator with UiLoggy{
   static TypeGenerator instance = TypeGenerator();
 
   Map<Type, Function(Map<String, dynamic>)> map = {};
@@ -11,7 +13,7 @@ class TypeGenerator {
     try {
       return map[T]!(params);
     } catch (e) {
-      print("error creating an object");
+       loggy.warning("error creating an object");
     }
 
     return null;

@@ -187,7 +187,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
       int i = 0;
       for (var so in orderBy) {
         if (so is SortOrderByFieldName) {
-          var son = so as SortOrderByFieldName;
+          var son = so ;
           if (son.fieldName != "") {
             if (i > 0) {
               sb.write(",");
@@ -269,7 +269,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     StreamController<T?> controller = StreamController<T?>();
     Stream<T?> s = controller.stream;
     controller.add(createFromMap(doc!.toPlainMap()));
-    var stream =
+   // var stream =
         document.asyncMap((event) => getById(event.documentId)).listen((event) {
       controller.add(event);
     });

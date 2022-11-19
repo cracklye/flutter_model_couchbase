@@ -96,7 +96,7 @@ class CouchbaseGlobalDAO with UiLoggy {
       int i = 0;
       for (var so in orderBy) {
         if (so is SortOrderByFieldName) {
-          var son = so as SortOrderByFieldName;
+          var son = so ;
           if (son.fieldName != "") {
             if (i > 0) {
               sb.write(",");
@@ -118,7 +118,7 @@ class CouchbaseGlobalDAO with UiLoggy {
     return sb.toString();
   }
 
-  @override
+  
   Future<Stream<List<ModelStub>>> list(
       {String? parentId,
       String? searchText,
@@ -133,9 +133,9 @@ class CouchbaseGlobalDAO with UiLoggy {
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
     var c = b.map((event) => event.map((e) {
-          print(e);
+           loggy.debug(e);
           if (e.toPlainMap()['_'] == null) return ModelStub(e.toPlainMap());
-          print('Not nulls');
+           loggy.debug('Not nulls');
           return ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);
         }).toList()); //as Stream<List<ModelStub>>;
 
@@ -149,7 +149,7 @@ class CouchbaseGlobalDAO with UiLoggy {
     return c;
   }
 
-  @override
+  //@override
   Future<List<ModelStub>> listModels(
       {String? parentId,
       String? searchText,

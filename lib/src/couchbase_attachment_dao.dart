@@ -36,9 +36,9 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
 
   @override
   Future<ImageProvider> getImageProvider(IModel coverImage,
-      Map<String, dynamic>? details, String fieldName) async {
+      Map<String, dynamic>? details, String field) async {
     Document? doc = await database.document(coverImage.id);
-    Blob? blob = doc!.blob("${fieldName}blob");
+    Blob? blob = doc!.blob("${field}blob");
     var content = await blob!.content();
 
     var f = MemoryImage(content);
