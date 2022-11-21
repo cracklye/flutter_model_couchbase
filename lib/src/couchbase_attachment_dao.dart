@@ -70,6 +70,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO {
 
     database.saveDocument(mdco);
     
+    return null;
   }
 
   @override
