@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -19,13 +20,13 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
   @override
   Future<void> savePathPost(
       String fieldName, String srcPath, dynamic id, String? mimeType) async {
-    
-        loggy.debug("savePathPost started fieldName: $fieldName id= $id  srcPath= $srcPath");
+    loggy.debug(
+        "savePathPost started fieldName: $fieldName id= $id  srcPath= $srcPath");
 
     var src = File(srcPath);
 
     Document? doc = await database.document(id);
-     loggy.debug("savePathPost Have document ${doc!.toJson()}");
+    loggy.debug("savePathPost Have document ${doc!.toJson()}");
 
     MutableDocument mdco = doc!.toMutable();
     Blob blob = Blob.fromData(mimeType ?? "unknown", await src.readAsBytes());
@@ -38,7 +39,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
   @override
   Future<Map<String, dynamic>?> savePath(
       String fieldName, String srcPath, String? mimeType) async {
-        loggy.debug("savePath started $fieldName returning empty" );
+    loggy.debug("savePath started $fieldName returning empty");
     return {};
   }
 
@@ -54,15 +55,17 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
       var f = MemoryImage(content);
       return f;
     }
-    return MemoryImage(Uint8List(0));
+    Uint8List blankBytes = Base64Codec().decode(
+        //"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
+    // return Image.network('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg')
+    return MemoryImage(blankBytes);
   }
 
   @override
   Future<Map<String, dynamic>?> removeContentPost(
       String fieldName, dynamic id) async {
-
-        loggy.debug("removeContentPost started $fieldName" );
-
+    loggy.debug("removeContentPost started $fieldName");
 
     //Delete it and return null;
     Document? doc = await database.document(id);
@@ -95,7 +98,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
   @override
   Future<Map<String, dynamic>?> saveContent(
       String fieldName, Uint8List data, String? ext, String? mimeType) async {
-        loggy.debug("saveContent started $fieldName" );
+    loggy.debug("saveContent started $fieldName");
     return {};
   }
 }
