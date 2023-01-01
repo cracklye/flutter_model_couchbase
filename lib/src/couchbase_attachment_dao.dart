@@ -55,7 +55,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
       var f = MemoryImage(content);
       return f;
     }
-    Uint8List blankBytes = Base64Codec().decode(
+    Uint8List blankBytes = const Base64Codec().decode(
         //"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
     // return Image.network('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg')
