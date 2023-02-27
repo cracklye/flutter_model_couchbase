@@ -27,6 +27,10 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
 
   T createFromMap(Map<String, dynamic> values);
 
+  Map<String, dynamic> convertToPureMap(Map<String, dynamic> values){
+    return values;
+  }
+
   @override
   Future<T> create(Map<String, dynamic> values) async {
     //Add the defaults...
@@ -39,6 +43,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         ifAbsent: (() => DateTime.now().toString()));
 
     //var doc = Document("docid", data: {'name': 'John Doe'});
+    values = convertToPureMap(values);
 
     final mutableDocument = MutableDocument();
     var id = mutableDocument.id;
@@ -59,6 +64,8 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   Future<dynamic> update(dynamic id, Map<String, dynamic> values) async {
     loggy.debug("CouchbaseDAO.create values");
     // Read the document.
+    values = convertToPureMap(values);
+    
     values.update("modifiedDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
 
