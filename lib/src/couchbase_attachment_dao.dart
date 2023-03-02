@@ -28,7 +28,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
     Document? doc = await database.document(id);
     loggy.debug("savePathPost Have document ${doc!.toJson()}");
 
-    MutableDocument mdco = doc!.toMutable();
+    MutableDocument mdco = doc.toMutable();
     Blob blob = Blob.fromData(mimeType ?? "unknown", await src.readAsBytes());
     mdco.setBlob(blob, key: "${fieldName}blob");
     mdco.setValue({"hasvalue": true, "mimeType": mimeType}, key: fieldName);
@@ -50,7 +50,7 @@ class CouchbaseAttachmentDAO extends AttachmentDAO with UiLoggy {
     Blob? blob = doc!.blob("${field}blob");
 
     if (blob != null) {
-      var content = await blob!.content();
+      var content = await blob.content();
 
       var f = MemoryImage(content);
       return f;
