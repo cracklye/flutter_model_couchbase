@@ -11,7 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_model:
-    path: ../flutter_model
+    git:
+      url: https://github.com/cracklye/flutter_model.git
   cbl: ^2.1.1
   cbl_flutter: ^2.0.2
   cbl_flutter_ce: ^2.1.2
