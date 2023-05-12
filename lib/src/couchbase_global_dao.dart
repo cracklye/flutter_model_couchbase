@@ -87,7 +87,7 @@ class CouchbaseGlobalDAO with UiLoggy {
         i++;
       }
     }
- if(searchText!=null && searchText!=""){
+    if (searchText != null && searchText != "") {
       sb.write(" and match(fti,'$searchText')");
     }
 
@@ -96,7 +96,7 @@ class CouchbaseGlobalDAO with UiLoggy {
       int i = 0;
       for (var so in orderBy) {
         if (so is SortOrderByFieldName) {
-          var son = so ;
+          var son = so;
           if (son.fieldName != "") {
             if (i > 0) {
               sb.write(",");
@@ -118,7 +118,6 @@ class CouchbaseGlobalDAO with UiLoggy {
     return sb.toString();
   }
 
-  
   Future<Stream<List<ModelStub>>> list(
       {String? parentId,
       String? searchText,
@@ -133,9 +132,9 @@ class CouchbaseGlobalDAO with UiLoggy {
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
     var c = b.map((event) => event.map((e) {
-           loggy.debug(e);
+          loggy.debug(e);
           if (e.toPlainMap()['_'] == null) return ModelStub(e.toPlainMap());
-           loggy.debug('Not nulls');
+          loggy.debug('Not nulls');
           return ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);
         }).toList()); //as Stream<List<ModelStub>>;
 
@@ -163,12 +162,16 @@ class CouchbaseGlobalDAO with UiLoggy {
     final result = await query.execute();
     final results = await result.allResults();
     var rtn = results
-        .map((e) => ModelStub(e.toPlainMap()["_"] as Map<String, Object?>))
+        .map((e) => buildStub(e.toPlainMap()["_"] as Map<String, Object?>))
         .toList();
     // if (searchText != null && searchText != "") {
     //   //Filter based on the text as we're not handling it elsewhere....
     //   return rtn.where((element) => element.filter(searchText)).toList();
     // }
     return rtn;
+  }
+
+  ModelStub buildStub(Map<String, Object?> values) {
+    return ModelStub(values);
   }
 }
