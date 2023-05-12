@@ -133,9 +133,9 @@ class CouchbaseGlobalDAO with UiLoggy {
     var b = a.asyncMap((event) => event.results.allResults());
     var c = b.map((event) => event.map((e) {
           loggy.debug(e);
-          if (e.toPlainMap()['_'] == null) return ModelStub(e.toPlainMap());
+          if (e.toPlainMap()['_'] == null) return buildStub(e.toPlainMap());
           loggy.debug('Not nulls');
-          return ModelStub(e.toPlainMap()['_'] as Map<String, Object?>);
+          return buildStub(e.toPlainMap()['_'] as Map<String, Object?>);
         }).toList()); //as Stream<List<ModelStub>>;
 
     // if (searchText != null && searchText != "") {
