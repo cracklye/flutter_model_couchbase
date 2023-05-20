@@ -114,7 +114,7 @@ class CouchbaseGlobalDAO with UiLoggy {
         }
       }
     }
-    loggy.debug("CouchbaseDAO.buildSQL() returning ${sb.toString()}");
+
     return sb.toString();
   }
 
@@ -132,9 +132,8 @@ class CouchbaseGlobalDAO with UiLoggy {
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
     var c = b.map((event) => event.map((e) {
-          loggy.debug(e);
           if (e.toPlainMap()['_'] == null) return buildStub(e.toPlainMap());
-          loggy.debug('Not nulls');
+
           return buildStub(e.toPlainMap()['_'] as Map<String, Object?>);
         }).toList()); //as Stream<List<ModelStub>>;
 

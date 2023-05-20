@@ -34,7 +34,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   @override
   Future<T> create(Map<String, dynamic> values) async {
     //Add the defaults...
-    loggy.debug("CouchbaseDAO.create(${T.toString()}) $values");
+    loggy.debug("CouchbaseDAO.create(${T.toString()})");
 
     values.putIfAbsent("dbtype", () => T.toString());
     values.update("createdDate", (value) => DateTime.now().toString(),
@@ -238,13 +238,6 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
           }
         }).toList());
 
-    // if (searchText != null && searchText != "") {
-    //   //Filter based on the text as we're not handling it elsewhere....
-    //   loggy.debug("CouchbaseDAO.list() filtering on search text $searchText");
-
-    //   return c.map((event) =>
-    //       event.where((element) => element.filter(searchText)).toList());
-    // }
     return c;
   }
 
@@ -297,7 +290,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     final document = (await database.document(id));
 
     if (document == null) return null;
-    loggy.debug('createFromMap ${document.toPlainMap().toString()}');
+    
     return createFromMap(document.toPlainMap());
   }
 }
