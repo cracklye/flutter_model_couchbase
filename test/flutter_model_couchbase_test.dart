@@ -195,8 +195,8 @@ class CategoryDAO extends CouchbaseDAO<Category> {
 
 @JsonSerializable()
 @freezed
-class Category with _$Category, IModel, IHierarchy {
-  const Category._();
+class Category extends IModel with _$Category implements IHierarchy {
+   Category._();
 
   factory Category({
     dynamic id,

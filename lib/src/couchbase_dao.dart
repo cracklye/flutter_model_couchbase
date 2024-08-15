@@ -50,7 +50,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     values.update("id", (value) => id, ifAbsent: (() => id));
 
     mutableDocument.setData(values);
-    await database.saveDocument(mutableDocument);
+    await (await database.defaultCollection).saveDocument(mutableDocument);
     return createFromMap(values).copyWithId(id: mutableDocument.id) as T;
   }
 
@@ -69,7 +69,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     values.update("modifiedDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
 
-    Document document = (await database.document(id))!;
+    Document document = (await (await database.defaultCollection).document(id))!;
 
     final MutableDocument mutableDocument = document.toMutable();
     //mutableDocument.setData(values);
@@ -78,7 +78,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
       mutableDocument.setValue(values[key], key: key);
     }
 
-    await database.saveDocument(mutableDocument);
+    await (await database.defaultCollection).saveDocument(mutableDocument);
   }
 
   @override
@@ -93,8 +93,10 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     loggy.error(
         "Not implemented correctly - need to delete any child entries..");
 
-    final query = await Query.fromN1ql(
-        database, "select id from _ where parentid='$parentId'");
+    // final query = await Query.fromN1ql(
+    //     database, "select id from _ where parentid='$parentId'");
+    final query = await database
+        .createQuery("select id from _ where parentid='$parentId'");
 
     var rs = await query.execute();
     var ar = await rs.allResults();
@@ -112,14 +114,14 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
   @override
   Future<dynamic> deleteById(dynamic id) async {
     loggy.debug("CouchbaseDAO.delete $id");
-    var doc = await database.document(id);
+    var doc = await (await database.defaultCollection).document(id);
     if (doc != null) {
       if (childDaos != null && childDaos!.isNotEmpty) {
         for (var dao in childDaos!) {
           await dao.deleteByParentId(id);
         }
       }
-      database.deleteDocument(doc);
+      (await database.defaultCollection).deleteDocument(doc);
     }
   }
 
@@ -200,11 +202,9 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
                 }
               } else {
                 sb.write("${filter.value}");
-
               }
               hasQuery = true;
             }
-            
           }
         } else {
           loggy.warning("An unknown filter type has been provided $filter");
@@ -260,8 +260,11 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
       List<Filter>? filters}) async {
     loggy.debug("CouchbaseDAO.list($parentId, $searchText,$orderBy,$filters)");
 
-    final query = await Query.fromN1ql(
-        database, buildSQL(parentId, searchText, orderBy, filters));
+    // final query = await Query.fromN1ql(
+    //     database, buildSQL(parentId, searchText, orderBy, filters));
+
+    final query = await database
+        .createQuery(buildSQL(parentId, searchText, orderBy, filters));
 
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
@@ -284,9 +287,11 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
       List<SortOrderBy>? orderBy,
       List<Filter>? filters}) async {
     loggy.debug("CouchbaseDAO.listModels() ");
+    final query = await database
+        .createQuery(buildSQL(parentId, searchText, orderBy, filters));
 
-    final query = await Query.fromN1ql(
-        database, buildSQL(parentId, searchText, orderBy, filters));
+    // final query = await Query.fromN1ql(
+    //     database, buildSQL(parentId, searchText, orderBy, filters));
     final result = await query.execute();
     final results = await result.allResults();
     var rtn = results
@@ -304,8 +309,8 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     dynamic id,
   ) async {
     loggy.debug("CouchbaseDAO.listById($id)");
-    final document = database.documentChanges(id);
-    Document? doc = await database.document(id);
+    final document = (await database.defaultCollection).documentChanges(id);
+    Document? doc = await (await database.defaultCollection).document(id);
 
     StreamController<T?> controller = StreamController<T?>();
     Stream<T?> s = controller.stream;
@@ -323,7 +328,7 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     dynamic id,
   ) async {
     loggy.debug("CouchbaseDAO.getById($id)");
-    final document = (await database.document(id));
+    final document = (await (await database.defaultCollection).document(id));
 
     if (document == null) return null;
 

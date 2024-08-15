@@ -125,9 +125,11 @@ class CouchbaseGlobalDAO with UiLoggy {
       List<Filter>? filters,
       String? sql}) async {
     loggy.debug("CouchbaseDAO.list($parentId, $searchText,$orderBy,$filters)");
-
-    final query = await Query.fromN1ql(
-        database, buildSQL(parentId, searchText, orderBy, filters, sql));
+    final query = await database.createQuery(
+      buildSQL(parentId, searchText, orderBy, filters, sql),
+    );
+    // final query = await Query.fromN1ql(
+    //     database, buildSQL(parentId, searchText, orderBy, filters, sql));
 
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
@@ -155,9 +157,11 @@ class CouchbaseGlobalDAO with UiLoggy {
       List<Filter>? filters,
       String? sql}) async {
     loggy.debug("CouchbaseDAO.listModels() ");
-
-    final query = await Query.fromN1ql(
-        database, buildSQL(parentId, searchText, orderBy, filters, sql));
+    final query = await database.createQuery(
+      buildSQL(parentId, searchText, orderBy, filters, sql),
+    );
+    // final query = await Query.fromN1ql(
+    //     database, buildSQL(parentId, searchText, orderBy, filters, sql));
     final result = await query.execute();
     final results = await result.allResults();
     var rtn = results
