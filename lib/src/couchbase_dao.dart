@@ -69,7 +69,8 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
     values.update("modifiedDate", (value) => DateTime.now().toString(),
         ifAbsent: (() => DateTime.now().toString()));
 
-    Document document = (await (await database.defaultCollection).document(id))!;
+    Document document =
+        (await (await database.defaultCollection).document(id))!;
 
     final MutableDocument mutableDocument = document.toMutable();
     //mutableDocument.setData(values);
@@ -128,14 +129,19 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
 // select * from _ where dbtype!='' and ( ANY x IN tags SATISFIES x == 'No Colour' END ) and ( ANY x IN tags SATISFIES x == 'Green' END )
 // select * from _default where dbtype!='' and ( ANY x IN tags SATISFIES x == 'xxx' END) or ( ANY x IN tags SATISFIES x == 'test' END)
 
+  List<String> getDbTypes(List<Filter>? filters) {
+    return [T.toString()];
+  }
+
   String buildSQL(String? parentId, String? searchText,
       List<SortOrderBy>? orderBy, List<Filter>? filters) {
     StringBuffer sb = StringBuffer();
-    sb.write('select * from _ where ');
+    sb.write('select * from _  ');
 
     bool hasQuery = false;
 
     if (parentId != null) {
+      sb.write(" where ");
       sb.write(" parentId='$parentId'");
       hasQuery = true;
     }
@@ -147,9 +153,6 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         if (filter is FilterField<T>) {
           loggy.debug("CouchbaseDAO.buildSQL() Is Filter field");
           if (filter.fieldName != "") {
-            if (hasQuery) {
-              sb.write(" and ");
-            }
             loggy.debug(
                 "CouchbaseDAO.buildSQL() Fielname is not empty ${filter.comparison}");
             if (filter.comparison == FilterComparison.isin) {
@@ -165,6 +168,8 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
               for (var val in values) {
                 if (hasQuery) {
                   sb.write(" and ");
+                } else {
+                  sb.write(" where ");
                 }
                 sb.write(
                     " ANY ${filter.key}${iCount} IN ${filter.fieldName} SATISFIES ${filter.key}${iCount} == ");
@@ -211,17 +216,34 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
         }
       }
     }
-    if (hasQuery) {
-      sb.write(" and ");
+
+    if (getDbTypes(filters).isNotEmpty) {
+      bool hasOne = false;
+      if (hasQuery) {
+        sb.write(" and ");
+      } else {
+        sb.write(" where ");
+      }
+
+      sb.write("(");
+      for (var type in getDbTypes(filters)) {
+        if (hasOne) {
+          sb.write(" or ");
+        }
+        sb.write(' dbtype=\'');
+        sb.write(type);
+        sb.write('\'');
+        hasOne = true;
+      }
+      sb.write(")");
+      hasQuery = true;
     }
-    sb.write(' dbtype=\'');
-    sb.write(T.toString());
-    sb.write('\'');
-    hasQuery = true;
 
     if (searchText != null && searchText != "") {
       if (hasQuery) {
         sb.write(" and ");
+      } else {
+        sb.write(" where ");
       }
       sb.write(" match(fti,'$searchText')");
     }
