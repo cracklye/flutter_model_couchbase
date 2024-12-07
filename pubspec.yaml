@@ -14,9 +14,9 @@ dependencies:
     git:
       url: https://github.com/cracklye/flutter_model.git
     #path: ../flutter_model
-  cbl: ^3.0.0
-  cbl_flutter: 
-  cbl_flutter_ce:
+  cbl: ^3.3.0
+  cbl_flutter: ^3.2.0
+  cbl_flutter_ce: ^3.2.0
   loggy: ^2.0.1+1  
 
   
