@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cbl/cbl.dart';
+import 'package:flutter_model/app_environement.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_model.dart';
 import 'package:loggy/loggy.dart';
 
 
@@ -79,28 +81,28 @@ class CouchbaseReplicationDao extends IReplicationDao with UiLoggy {
       username = "sync_gateway_user";
       password = "oi8v6i27VrC#4@QaHCPs%Q";
     }
-
-    if (params[AppSettings.prefReplicationAddress] != null &&
-        params[AppSettings.prefReplicationAddress] != "") {
-      address = params[AppSettings.prefReplicationAddress].toString();
-    }
-    if (params[AppSettings.prefReplicationDbname] != null &&
-        params[AppSettings.prefReplicationDbname] != "") {
-      dbName = params[AppSettings.prefReplicationDbname].toString();
-    }
-    if (params[AppSettings.prefReplicationUsername] != null &&
-        params[AppSettings.prefReplicationUsername] != "") {
-      username = params[AppSettings.prefReplicationUsername].toString();
-    }
-    if (params[AppSettings.prefReplicationPassword] != null &&
-        params[AppSettings.prefReplicationPassword] != "") {
-      password = params[AppSettings.prefReplicationPassword].toString();
-    }
-    try {
-      autoStart = bool.parse(params[AppSettings.prefReplicationAutostart]);
-    } catch (e) {
-      //Don't do anything...
-    }
+//TODO need to add
+    // if (params[AppSettings.prefReplicationAddress] != null &&
+    //     params[AppSettings.prefReplicationAddress] != "") {
+    //   address = params[AppSettings.prefReplicationAddress].toString();
+    // }
+    // if (params[AppSettings.prefReplicationDbname] != null &&
+    //     params[AppSettings.prefReplicationDbname] != "") {
+    //   dbName = params[AppSettings.prefReplicationDbname].toString();
+    // }
+    // if (params[AppSettings.prefReplicationUsername] != null &&
+    //     params[AppSettings.prefReplicationUsername] != "") {
+    //   username = params[AppSettings.prefReplicationUsername].toString();
+    // }
+    // if (params[AppSettings.prefReplicationPassword] != null &&
+    //     params[AppSettings.prefReplicationPassword] != "") {
+    //   password = params[AppSettings.prefReplicationPassword].toString();
+    // }
+    // try {
+    //   autoStart = bool.parse(params[AppSettings.prefReplicationAutostart]);
+    // } catch (e) {
+    //   //Don't do anything...
+    // }
 
 //'ws://192.168.1.71:4984/note_live';
 

@@ -1,4 +1,7 @@
 
+import 'package:flutter_model_couchbase/src/replication/replication_bloc.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_model.dart';
+
 abstract class ReplicationState {
   const ReplicationState({required this.logs});
   final List<ReplicationEventLog> logs;

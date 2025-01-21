@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_model/bloc/preferences/preferences_bloc.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_dao.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_event.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_model.dart';
+import 'package:flutter_model_couchbase/src/replication/replication_state.dart';
 import 'package:loggy/loggy.dart';
-import 'package:notd/app/app_settings.dart';
 
 class ReplicationEventLog {
   final DateTime time;
@@ -18,7 +21,9 @@ class ReplicationEventLog {
 class ReplicationBloc extends Bloc<ReplicationEvent, ReplicationState>
     with UiLoggy {
   final IReplicationDao dao;
-  final PreferencesBloc<AppSettings> preferences;
+  final PreferencesBloc
+      //<AppSettings>
+      preferences;
 
   late StreamSubscription preferenceSub;
 
@@ -134,7 +139,7 @@ class ReplicationBloc extends Bloc<ReplicationEvent, ReplicationState>
       activeState = activeState.copyWith(
           progress: message.progress,
           appendLog: ReplicationEventLog("Replicating",
-              progress: ((message.progress * 100).toInt() ),
+              progress: ((message.progress * 100).toInt()),
               count: message.docsProcessed));
     } else if (message is ReplicationMessageStatusChange) {
       // if (activeState.status != message.change) {
@@ -154,7 +159,7 @@ class ReplicationBloc extends Bloc<ReplicationEvent, ReplicationState>
           appendLog: ReplicationEventLog("Unknown log ${message.toString()}"));
     }
     emit(activeState);
-    }
+  }
 
   FutureOr<void> _onReplicationEventStop(
       ReplicationEventStop event, Emitter<ReplicationState> emit) async {

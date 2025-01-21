@@ -290,14 +290,18 @@ abstract class CouchbaseDAO<T extends IModel> extends IModelAPI<T>
 
     var a = query.changes();
     var b = a.asyncMap((event) => event.results.allResults());
-    var c = b.map((event) => event.map((e) {
+    var c = b.map((event) => event
+        .map((e) {
           try {
             return createFromMap(e.toPlainMap()["_"] as Map<String, Object?>);
           } catch (e) {
             loggy.error("Unable to create object from map $e");
-            return createNewModel();
+            return null;
           }
-        }).toList());
+        })
+        .where((e) => e != null)
+        .toList()
+        .cast<T>());
 
     return c;
   }
